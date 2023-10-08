@@ -15,7 +15,7 @@ end_time = 5 # End time [s]
 channel_locs = np.array([48,54,55,56,57,58,61,62,63]) # 9 channels[Pz,PO5,PO3,POz,PO4,PO6,O1,Oz,O2]
 target = 30 # Target number
 channel = 7 # Channel number
-topo_target = 7 # Topomap target number
+topo_target = 30 # Topomap target number
 Wp = np.array([7,70])/(fs/2)
 Ws = np.array([6,78])/(fs/2)
 channel_info_path = '../Data/BenchmarkDataset/64-channels.loc'
@@ -44,12 +44,18 @@ eeg = np.squeeze(eeg[target,channel,:,:])
 eeg = np.squeeze(np.mean(eeg, axis = 1))
 O, W = sig.cheb1ord(Wp,Ws,3,40)
 B, A = sig.cheby1(O,0.5,W,'bandpass')
-w, h = sig.freqz(B,A,1000)
+w, h = sig.freqz(B,A,1000,fs=fs,whole=False)
 plt.plot(w, 20 * np.log10(abs(h)))
+plt.title('Chebyshev Type I bandpass frequency response')
+plt.xlabel('Frequency [Hz]')
+plt.ylabel('Amplitude [dB]')
 plt.show()
 eeg = sig.filtfilt(B,A,eeg)
 time_vec = np.linspace(0, eeg.shape[0]/fs, eeg.shape[0])
 plt.plot(time_vec, eeg)
+plt.title('Filtered EEG')
+plt.xlabel('Time [s]')
+plt.ylabel('Amplitude [V]')
 plt.show()
 
 # Fourier
@@ -57,6 +63,8 @@ N = eeg.shape[0]
 eeg_f = fft(eeg)[:N//2]
 freq_vec = fftfreq(N,1/fs)[:N//2]
 plt.plot(freq_vec,2.0/N*np.abs(eeg_f))
+plt.title('Frequency Spectrum of EEG')
+plt.xlabel('Frequency [Hz]')
 plt.show()
 
 # Electrical Activity Mapping
